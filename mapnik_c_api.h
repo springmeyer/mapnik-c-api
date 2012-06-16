@@ -20,10 +20,9 @@ void mapnik_map_set_srs(mapnik_map_t m, const char* srs);
 
 int mapnik_map_load(mapnik_map_t m, const char* stylesheet);
 
-/*
-int mapnik_map_render();
-int mapnik_map_load();
-*/
+void mapnik_map_zoom_all(mapnik_map_t m);
+
+void mapnik_map_render_to_file(mapnik_map_t m, const char* filepath);
 
 #ifdef __cplusplus
 }

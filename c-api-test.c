@@ -23,6 +23,11 @@ void test_map() {
     mapnik_register_datasources(plugin_path);
     if (!mapnik_map_load(map,"sample/stylesheet.xml"))
         printf("\x1b[1;32m ✓ (%s)\x1b[0m\n", "load map");
+
+    // render a map
+    mapnik_map_zoom_all(map);
+    mapnik_map_render_to_file(map,"test.png");
+    printf("\x1b[1;32m ✓ (%s)\x1b[0m\n", "rendered to test.png");
     mapnik_map_free(map);
 }
 
