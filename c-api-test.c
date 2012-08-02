@@ -26,8 +26,8 @@ void test_map() {
 
     // render a map
     mapnik_map_zoom_all(map);
-    mapnik_map_render_to_file(map,"test.png");
-    printf("\x1b[1;32m ✓ (%s)\x1b[0m\n", "rendered to test.png");
+    mapnik_map_render_to_file(map,"/tmp/mapnik-c-api-test-map1");
+    printf("\x1b[1;32m ✓ (%s)\x1b[0m\n", "rendered to /tmp/mapnik-c-api-test-map1.png");
     mapnik_map_free(map);
 }
 

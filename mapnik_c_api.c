@@ -47,15 +47,27 @@ int mapnik_map_load(mapnik_map_t m, const char* stylesheet) {
     return 0;
 }
 
-void mapnik_map_zoom_all(mapnik_map_t m) {
+int mapnik_map_zoom_all(mapnik_map_t m) {
     mapnik::Map * _m = static_cast<mapnik::Map*>(m);
-    _m->zoom_all();
+    try {
+        _m->zoom_all();
+    } catch (std::exception const& ex) {
+        printf("%s\n",ex.what());
+        return -1;
+    }
+    return 0;
 }
 
-void mapnik_map_render_to_file(mapnik_map_t m, const char* filepath) {
+int mapnik_map_render_to_file(mapnik_map_t m, const char* filepath) {
     mapnik::Map * _m = static_cast<mapnik::Map*>(m);
-    mapnik::image_32 buf(_m->width(),_m->height());
-    mapnik::agg_renderer<mapnik::image_32> ren(*_m,buf);
-    ren.apply();
-    mapnik::save_to_file(buf,filepath);
+    try {
+        mapnik::image_32 buf(_m->width(),_m->height());
+        mapnik::agg_renderer<mapnik::image_32> ren(*_m,buf);
+        ren.apply();
+        mapnik::save_to_file(buf,filepath);
+    } catch (std::exception const& ex) {
+        printf("%s\n",ex.what());
+        return -1;
+    }
+    return 0;
 }

@@ -1,3 +1,5 @@
 *dylib
 *.a
-runtest
+test/c-api-test
+.DS_Store
+*.dSYM
