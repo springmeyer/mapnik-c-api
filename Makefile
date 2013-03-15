@@ -22,7 +22,7 @@ lint:
 	CC=scan-build $(MAKE)
 
 grind:
-	valgrind --leak-check=full --log-fd=1 ./runtest | grep definitely;
+	valgrind --leak-check=full --log-fd=1 ./test/c-api-test;
 
 python:
 	mkdir -p py-api
