@@ -1,3 +1,4 @@
+#include <mapnik/version.hpp>
 #include <mapnik/graphics.hpp>
 #include <mapnik/color.hpp>
 #include <mapnik/image_util.hpp>
@@ -9,7 +10,11 @@
 
 int mapnik_register_datasources(const char* path) {
     try {
+#if MAPNIK_VERSION >= 200200
+        mapnik::datasource_cache::instance().register_datasources(path);
+#else
         mapnik::datasource_cache::instance()->register_datasources(path);
+#endif
         return 0;
     } catch (std::exception const& ex) {
         printf("%s\n",ex.what());
