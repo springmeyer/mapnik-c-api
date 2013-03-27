@@ -47,8 +47,12 @@ const char * mapnik_map_get_srs(mapnik_map_t * m) {
     return NULL;
 }
 
-void mapnik_map_set_srs(mapnik_map_t * m, const char* srs) {
-    if (m) m->m->set_srs(srs);
+int mapnik_map_set_srs(mapnik_map_t * m, const char* srs) {
+    if (m) {
+        m->m->set_srs(srs);
+        return 0;
+    }
+    return -1;
 }
 
 int mapnik_map_load(mapnik_map_t * m, const char* stylesheet) {
