@@ -38,49 +38,59 @@ mapnik_map_t * mapnik_map(unsigned width, unsigned height) {
 }
 
 void mapnik_map_free(mapnik_map_t * m) {
-    delete m->m;
-    delete m;
+    if (m->m) delete m->m;
+    if (m) delete m;
 }
 
 const char * mapnik_map_get_srs(mapnik_map_t * m) {
-    return m->m->srs().c_str();
+    if (m && m->m) return m->m->srs().c_str();
+    return NULL;
 }
 
 void mapnik_map_set_srs(mapnik_map_t * m, const char* srs) {
-    m->m->set_srs(srs);
+    if (m) m->m->set_srs(srs);
 }
 
 int mapnik_map_load(mapnik_map_t * m, const char* stylesheet) {
-    try {
-        mapnik::load_map(*m->m,stylesheet);
-    } catch (std::exception const& ex) {
-        printf("%s\n",ex.what());
-        return -1;
+    if (m && m->m) {
+        try {
+            mapnik::load_map(*m->m,stylesheet);
+        } catch (std::exception const& ex) {
+            printf("%s\n",ex.what());
+            return -1;
+        }
+        return 0;
     }
-    return 0;
+    return -1;
 }
 
 int mapnik_map_zoom_all(mapnik_map_t * m) {
-    try {
-        m->m->zoom_all();
-    } catch (std::exception const& ex) {
-        printf("%s\n",ex.what());
-        return -1;
+    if (m && m->m) {
+        try {
+            m->m->zoom_all();
+        } catch (std::exception const& ex) {
+            printf("%s\n",ex.what());
+            return -1;
+        }
+        return 0;
     }
-    return 0;
+    return -1;
 }
 
 int mapnik_map_render_to_file(mapnik_map_t * m, const char* filepath) {
-    try {
-        mapnik::image_32 buf(m->m->width(),m->m->height());
-        mapnik::agg_renderer<mapnik::image_32> ren(*m->m,buf);
-        ren.apply();
-        mapnik::save_to_file(buf,filepath);
-    } catch (std::exception const& ex) {
-        printf("%s\n",ex.what());
-        return -1;
+    if (m && m->m) {
+        try {
+            mapnik::image_32 buf(m->m->width(),m->m->height());
+            mapnik::agg_renderer<mapnik::image_32> ren(*m->m,buf);
+            ren.apply();
+            mapnik::save_to_file(buf,filepath);
+        } catch (std::exception const& ex) {
+            printf("%s\n",ex.what());
+            return -1;
+        }
+        return 0;
     }
-    return 0;
+    return -1;
 }
 
 #ifdef __cplusplus
