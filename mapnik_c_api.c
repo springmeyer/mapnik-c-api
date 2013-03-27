@@ -8,6 +8,11 @@
 
 #include "mapnik_c_api.h"
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 int mapnik_register_datasources(const char* path) {
     try {
 #if MAPNIK_VERSION >= 200200
@@ -76,3 +81,7 @@ int mapnik_map_render_to_file(mapnik_map_t m, const char* filepath) {
     }
     return 0;
 }
+
+#ifdef __cplusplus
+}
+#endif

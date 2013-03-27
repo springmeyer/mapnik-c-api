@@ -1,7 +1,7 @@
-all: libmapnik_c.dylib runtest.c
+all: libmapnik_c.dylib runtest.c python
 
 libmapnik_c.dylib:
-	clang++ -x c++ -o libmapnik_c.dylib -g -dynamiclib mapnik_c_api.c `mapnik-config --cflags --libs --ldflags` -lboost_system
+	clang++ -x c++ -o libmapnik_c.dylib -Wl,-install_name,`pwd`/libmapnik_c.dylib -dynamiclib mapnik_c_api.c `mapnik-config --cflags --libs --ldflags | tr "\n" " "` -lboost_system
 
 runtest.c: libmapnik_c.dylib
 	clang++ -x c -o ./test/c-api-test c-api-test.c -L./ -lmapnik_c
