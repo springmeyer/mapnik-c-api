@@ -1,3 +1,5 @@
+import sys
+sys.path.append('./py-api')
 from mapnik_c import *
 
 mapnik_register_datasources("/usr/local/lib/mapnik/input")

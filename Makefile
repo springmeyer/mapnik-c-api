@@ -28,5 +28,9 @@ python:
 	mkdir -p py-api
 	touch py-api/__init__.py
 	ctypesgen.py -a -llibmapnik_c mapnik_c_api.h -o py-api/mapnik_c.py
+	python test/py-api-test.py;open py-test.png
+
+lua:
+	luajit test/lua-api-test.lua;open lua-test.png
 
 .PHONY: clean lint test
