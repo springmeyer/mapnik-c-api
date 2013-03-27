@@ -8,6 +8,7 @@
 
 #include "mapnik_c_api.h"
 
+
 #ifdef __cplusplus
 extern "C"
 {
