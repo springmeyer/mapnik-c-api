@@ -27,29 +27,32 @@ int mapnik_register_datasources(const char* path) {
     }
 }
 
-mapnik_map_t mapnik_map( unsigned width, unsigned height ) {
-    return new mapnik::Map(width,height);
+struct _mapnik_map_t {
+    mapnik::Map * m;
+};
+
+mapnik_map_t * mapnik_map(unsigned width, unsigned height) {
+    mapnik_map_t * map = new mapnik_map_t;
+    map->m = new mapnik::Map(width,height);
+    return map;
 }
 
-void mapnik_map_free(mapnik_map_t m) {
-    mapnik::Map * _m = static_cast<mapnik::Map*>(m);
-    delete _m;
+void mapnik_map_free(mapnik_map_t * m) {
+    delete m->m;
+    delete m;
 }
 
-const char * mapnik_map_get_srs(mapnik_map_t m) {
-    mapnik::Map * _m = static_cast<mapnik::Map*>(m);
-    return _m->srs().c_str();
+const char * mapnik_map_get_srs(mapnik_map_t * m) {
+    return m->m->srs().c_str();
 }
 
-void mapnik_map_set_srs(mapnik_map_t m, const char* srs) {
-    mapnik::Map * _m = static_cast<mapnik::Map*>(m);
-    _m->set_srs(srs);
+void mapnik_map_set_srs(mapnik_map_t * m, const char* srs) {
+    m->m->set_srs(srs);
 }
 
-int mapnik_map_load(mapnik_map_t m, const char* stylesheet) {
-    mapnik::Map * _m = static_cast<mapnik::Map*>(m);
+int mapnik_map_load(mapnik_map_t * m, const char* stylesheet) {
     try {
-        mapnik::load_map(*_m,stylesheet);
+        mapnik::load_map(*m->m,stylesheet);
     } catch (std::exception const& ex) {
         printf("%s\n",ex.what());
         return -1;
@@ -57,10 +60,9 @@ int mapnik_map_load(mapnik_map_t m, const char* stylesheet) {
     return 0;
 }
 
-int mapnik_map_zoom_all(mapnik_map_t m) {
-    mapnik::Map * _m = static_cast<mapnik::Map*>(m);
+int mapnik_map_zoom_all(mapnik_map_t * m) {
     try {
-        _m->zoom_all();
+        m->m->zoom_all();
     } catch (std::exception const& ex) {
         printf("%s\n",ex.what());
         return -1;
@@ -68,11 +70,10 @@ int mapnik_map_zoom_all(mapnik_map_t m) {
     return 0;
 }
 
-int mapnik_map_render_to_file(mapnik_map_t m, const char* filepath) {
-    mapnik::Map * _m = static_cast<mapnik::Map*>(m);
+int mapnik_map_render_to_file(mapnik_map_t * m, const char* filepath) {
     try {
-        mapnik::image_32 buf(_m->width(),_m->height());
-        mapnik::agg_renderer<mapnik::image_32> ren(*_m,buf);
+        mapnik::image_32 buf(m->m->width(),m->m->height());
+        mapnik::agg_renderer<mapnik::image_32> ren(*m->m,buf);
         ren.apply();
         mapnik::save_to_file(buf,filepath);
     } catch (std::exception const& ex) {

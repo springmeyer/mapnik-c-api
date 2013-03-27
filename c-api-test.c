@@ -8,7 +8,7 @@
 static const char * plugin_path = "/usr/local/lib/mapnik/input";
 
 void test_map() {
-    mapnik_map_t map;
+    mapnik_map_t * map;
     map = mapnik_map(256,256);
 
     const char *srs = mapnik_map_get_srs(map);
