@@ -3,3 +3,4 @@
 test/c-api-test
 .DS_Store
 *.dSYM
+*.png
