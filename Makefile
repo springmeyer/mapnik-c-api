@@ -40,4 +40,10 @@ python:
 lua:
 	luajit test/lua-api-test.lua;open lua-test.png
 
+ruby:
+	ruby test/rb-api-test.rb;open rb-test.png
+
+jruby:
+	jruby -S test/rb-api-test.rb;open rb-test.png
+
 .PHONY: clean lint test
