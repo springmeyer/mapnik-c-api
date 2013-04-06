@@ -27,6 +27,10 @@ lint:
 grind:
 	valgrind --leak-check=full --log-fd=1 ./test/c-api-test;
 
+node:
+	ffi-generate -f mapnik_c_api.h -l libmapnik_c > index.js
+	node test/node-api-test.js
+
 python:
 	mkdir -p py-api
 	touch py-api/__init__.py
