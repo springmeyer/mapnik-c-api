@@ -6,12 +6,12 @@ MAPNIK_LDFLAGS:=$(shell mapnik-config --libs)
 libmapnik_c.dylib: mapnik_c_api.c mapnik_c_api.h
 	clang++ -x c++ -o libmapnik_c.dylib -Wl,-install_name,`pwd`/libmapnik_c.dylib -dynamiclib mapnik_c_api.c $(MAPNIK_CXXFLAGS) $(MAPNIK_LDFLAGS) -Wl,-undefined -Wl,dynamic_lookup -Wl,-dead_strip -fvisibility-inlines-hidden
 
-test/c-api-test: libmapnik_c.dylib
-	clang++ -x c -o ./test/c-api-test c-api-test.c -L./ -lmapnik_c
+test/c-api-test: libmapnik_c.dylib c-api-test.c
+	clang++ -x c++ -o ./test/c-api-test c-api-test.c -L./ -lmapnik_c
+	#clang++ -x c -o ./test/c-api-test c-api-test.c -L./ -lmapnik_c
 
 test: test/c-api-test
-	@echo "Testing C API.."
-	./test/c-api-test
+	@./test/c-api-test
 
 check:
 	./test/c-api-test
@@ -46,4 +46,4 @@ ruby:
 jruby:
 	jruby -S test/rb-api-test.rb;open rb-test.png
 
-.PHONY: clean lint test
+.PHONY: test clean lint
