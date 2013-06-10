@@ -5,12 +5,13 @@
 
 #include "mapnik_c_api.h"
 
+// https://github.com/philsquared/Catch/wiki/Supplying-your-own-main()
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
 
 static const char * plugin_path = "/usr/local/lib/mapnik/input";
 
-TEST_CASE( "map/srs", "the default map srs is valid" ) {
+TEST_CASE( "map/srs", "should get/set srs string" ) {
       mapnik_map_t * map;
       map = mapnik_map(256,256);
       const char *srs = mapnik_map_get_srs(map);
@@ -21,7 +22,7 @@ TEST_CASE( "map/srs", "the default map srs is valid" ) {
       mapnik_map_free(map);
 }
 
-TEST_CASE( "map/load", "" ) {
+TEST_CASE( "map/load", "should load xml" ) {
       mapnik_map_t * map;
       map = mapnik_map(256,256);
       mapnik_register_datasources(plugin_path);
@@ -29,7 +30,7 @@ TEST_CASE( "map/load", "" ) {
       mapnik_map_free(map);
 }
 
-TEST_CASE( "map/render", "" ) {
+TEST_CASE( "map/render", "should render png" ) {
       mapnik_map_t * map;
       map = mapnik_map(256,256);
       mapnik_register_datasources(plugin_path);
