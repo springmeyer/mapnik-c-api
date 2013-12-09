@@ -26,7 +26,7 @@ mapnik_coord_t mapnik_projection_forward(mapnik_projection_t *p, mapnik_coord_t 
 // Bbox
 typedef struct _mapnik_bbox_t mapnik_bbox_t;
 
-mapnik_bbox_t * mapnik_bbox(double minx, double miny, double max, double maxy);
+mapnik_bbox_t * mapnik_bbox(double minx, double miny, double maxx, double maxy);
 
 void mapnik_bbox_free(mapnik_bbox_t * b);
 

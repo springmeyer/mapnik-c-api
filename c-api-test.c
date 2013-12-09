@@ -44,10 +44,10 @@ TEST_CASE( "map/render", "should render png" ) {
 
 TEST_CASE( "map/render_to_mem", "should render png in memory" ) {
       mapnik_map_t * map;
-      map = mapnik_map(256,256);
+      map = mapnik_map(1024,1024);
       mapnik_register_datasources(plugin_path);
       REQUIRE_FALSE(mapnik_map_load(map,"sample/stylesheet.xml"));
-      mapnik_map_zoom_all(map);
+      mapnik_map_zoom_to_box(map, mapnik_bbox(0, 0, 5000000, 5000000));
       mapnik_image_t * i = mapnik_map_render_to_image(map);
       mapnik_image_blob_t b = mapnik_image_to_png_blob(i);
 
