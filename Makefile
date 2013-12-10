@@ -1,14 +1,30 @@
 all: libmapnik_c.dylib
 
-MAPNIK_CXXFLAGS:=$(shell mapnik-config --cflags)
-MAPNIK_LDFLAGS:=$(shell mapnik-config --libs)
+# inherit from env
+CXX := $(CXX)
+CXXFLAGS := $(CXXFLAGS)
+LDFLAGS := $(LDFLAGS)
 
-libmapnik_c.dylib: mapnik_c_api.c mapnik_c_api.h
-	clang++ -x c++ -o libmapnik_c.dylib -Wl,-install_name,`pwd`/libmapnik_c.dylib -dynamiclib mapnik_c_api.c $(MAPNIK_CXXFLAGS) $(MAPNIK_LDFLAGS) -Wl,-undefined -Wl,dynamic_lookup -Wl,-dead_strip -fvisibility-inlines-hidden
+# mapnik settings
+MAPNIK_CXXFLAGS := $(shell mapnik-config --cflags)
+MAPNIK_LDFLAGS := $(shell mapnik-config --libs)
 
-test/c-api-test: libmapnik_c.dylib c-api-test.c
-	clang++ -x c++ -o ./test/c-api-test c-api-test.c -L./ -lmapnik_c
-	#clang++ -x c -o ./test/c-api-test c-api-test.c -L./ -lmapnik_c
+OS:=$(shell uname -s)
+ifeq ($(OS),Darwin)
+	SHARED_FLAG = -dynamiclib
+	LIBNAME = libmapnik_c.dylib
+	LDFLAGS += -Wl,-install_name,`pwd`/libmapnik_c.dylib -Wl,-undefined -Wl,dynamic_lookup
+else
+	SHARED_FLAG = -shared
+	LIBNAME = libmapnik_c.so
+	LDFLAGS += -Wl,-rpath=. -fPIC
+endif
+
+libmapnik_c.dylib: mapnik_c_api.c mapnik_c_api.h Makefile
+	$(CXX) -x c++ -o $(LIBNAME) $(SHARED_FLAG) mapnik_c_api.c $(LDFLAGS) $(MAPNIK_CXXFLAGS) $(MAPNIK_LDFLAGS)
+
+test/c-api-test: libmapnik_c.dylib test/c-api-test.cpp
+	$(CXX) -x c++ -o ./test/c-api-test test/c-api-test.cpp $(LDFLAGS) -L./ -I./ -lmapnik_c
 
 test: test/c-api-test
 	@./test/c-api-test
