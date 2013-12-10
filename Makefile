@@ -11,18 +11,20 @@ MAPNIK_LDFLAGS := $(shell mapnik-config --libs)
 
 OS:=$(shell uname -s)
 ifeq ($(OS),Darwin)
+	SHARED_FLAG = -dynamiclib
 	LIBNAME = libmapnik_c.dylib
-	LDFLAGS += -dynamiclib -Wl,-install_name,`pwd`/libmapnik_c.dylib -Wl,-undefined -Wl,dynamic_lookup
+	LDFLAGS += -Wl,-install_name,`pwd`/libmapnik_c.dylib -Wl,-undefined -Wl,dynamic_lookup
 else
+	SHARED_FLAG = -shared
 	LIBNAME = libmapnik_c.so
-	LDFLAGS += -shared -Wl,-rpath=. -fPIC
+	LDFLAGS += -Wl,-rpath=. -fPIC
 endif
 
 libmapnik_c.dylib: mapnik_c_api.c mapnik_c_api.h Makefile
-	$(CXX) -x c++ -o $(LIBNAME) mapnik_c_api.c $(LDFLAGS) $(MAPNIK_CXXFLAGS) $(MAPNIK_LDFLAGS)
+	$(CXX) -x c++ -o $(LIBNAME) $(SHARED_FLAG) mapnik_c_api.c $(LDFLAGS) $(MAPNIK_CXXFLAGS) $(MAPNIK_LDFLAGS)
 
 test/c-api-test: libmapnik_c.dylib test/c-api-test.cpp
-	$(CXX) -x c++ -o ./test/c-api-test test/c-api-test.cpp -L./ -I./ -lmapnik_c
+	$(CXX) -x c++ -o ./test/c-api-test test/c-api-test.cpp $(LDFLAGS) -L./ -I./ -lmapnik_c
 
 test: test/c-api-test
 	@./test/c-api-test
