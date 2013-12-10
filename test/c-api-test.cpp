@@ -51,7 +51,7 @@ TEST_CASE( "map/render_to_mem", "should render png in memory" ) {
       mapnik_image_t * i = mapnik_map_render_to_image(map);
       mapnik_image_blob_t * b = mapnik_image_to_png_blob(i);
 
-      std::ofstream o("/tmp/mapnik-c-api-test-map2.png");
+      std::ofstream o("/tmp/mapnik-c-api-test-map2.png", std::ios_base::out | std::ios_base::binary);
       o.write(b->ptr, b->len);
       o.close();
 
