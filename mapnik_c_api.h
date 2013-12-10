@@ -37,11 +37,13 @@ typedef struct _mapnik_image_t mapnik_image_t;
 void mapnik_image_free(mapnik_image_t * i);
 
 typedef struct _mapnik_image_blob_t {
-    void *ptr;
+    char *ptr;
     unsigned int len;
 } mapnik_image_blob_t;
 
-mapnik_image_blob_t mapnik_image_to_png_blob(mapnik_image_t * i);
+void mapnik_image_blob_free(mapnik_image_blob_t * b);
+
+mapnik_image_blob_t * mapnik_image_to_png_blob(mapnik_image_t * i);
 
 
 

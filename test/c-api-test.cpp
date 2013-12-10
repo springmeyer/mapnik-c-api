@@ -49,13 +49,13 @@ TEST_CASE( "map/render_to_mem", "should render png in memory" ) {
       REQUIRE_FALSE(mapnik_map_load(map,"sample/stylesheet.xml"));
       mapnik_map_zoom_to_box(map, mapnik_bbox(0, 0, 5000000, 5000000));
       mapnik_image_t * i = mapnik_map_render_to_image(map);
-      mapnik_image_blob_t b = mapnik_image_to_png_blob(i);
+      mapnik_image_blob_t * b = mapnik_image_to_png_blob(i);
 
       std::ofstream o("/tmp/mapnik-c-api-test-map2.png");
-      o.write(static_cast<char*>(b.ptr), b.len);
+      o.write(b->ptr, b->len);
       o.close();
 
-      if (b.ptr) free(b.ptr);
+      mapnik_image_blob_free(b);
       mapnik_image_free(i);
       mapnik_map_free(map);
 }

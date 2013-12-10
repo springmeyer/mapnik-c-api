@@ -187,17 +187,23 @@ mapnik_image_t * mapnik_map_render_to_image(mapnik_map_t * m) {
     return i;
 }
 
-mapnik_image_blob_t mapnik_image_to_png_blob(mapnik_image_t * i) {
-    mapnik_image_blob_t blob;
-    blob.ptr = NULL;
-    blob.len = 0;
+void mapnik_image_blob_free(mapnik_image_blob_t * b) {
+    if (b) {
+        if (b->ptr)
+            delete[] b->ptr;
+        delete b;
+    }
+}
+
+mapnik_image_blob_t * mapnik_image_to_png_blob(mapnik_image_t * i) {
+    mapnik_image_blob_t * blob = new mapnik_image_blob_t;
+    blob->ptr = NULL;
+    blob->len = 0;
     if (i && i->i) {
         std::string s = save_to_string(*(i->i), "png256");
-        blob.len = s.length();
-        blob.ptr = malloc(blob.len); // malloc is important here, as it's the reponsibility of
-                                     // the C-API user to free() the allocated memory later
-                                     // and the delete-operator of C++ might not be available
-        memcpy(blob.ptr, s.c_str(), blob.len);
+        blob->len = s.length();
+        blob->ptr = new char[blob->len];
+        memcpy(blob->ptr, s.c_str(), blob->len);
     }
     return blob;
 }
