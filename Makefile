@@ -1,14 +1,14 @@
 all: libmapnik_c.dylib
 
-MAPNIK_CXXFLAGS:=$(shell mapnik-config --cflags)
-MAPNIK_LDFLAGS:=$(shell mapnik-config --libs)
+CXX := $(CXX)
+MAPNIK_CXXFLAGS := $(shell mapnik-config --cflags)
+MAPNIK_LDFLAGS := $(shell mapnik-config --libs)
 
 libmapnik_c.dylib: mapnik_c_api.c mapnik_c_api.h
-	clang++ -x c++ -o libmapnik_c.dylib -Wl,-install_name,`pwd`/libmapnik_c.dylib -dynamiclib mapnik_c_api.c $(MAPNIK_CXXFLAGS) $(MAPNIK_LDFLAGS) -Wl,-undefined -Wl,dynamic_lookup -Wl,-dead_strip -fvisibility-inlines-hidden
+	$(CXX) -x c++ -o libmapnik_c.dylib -Wl,-install_name,`pwd`/libmapnik_c.dylib -dynamiclib mapnik_c_api.c $(MAPNIK_CXXFLAGS) $(MAPNIK_LDFLAGS) -Wl,-undefined -Wl,dynamic_lookup -Wl,-dead_strip -fvisibility-inlines-hidden
 
 test/c-api-test: libmapnik_c.dylib c-api-test.c
-	clang++ -x c++ -o ./test/c-api-test c-api-test.c -L./ -lmapnik_c
-	#clang++ -x c -o ./test/c-api-test c-api-test.c -L./ -lmapnik_c
+	$(CXX) -x c++ -o ./test/c-api-test c-api-test.c -L./ -lmapnik_c
 
 test: test/c-api-test
 	@./test/c-api-test
