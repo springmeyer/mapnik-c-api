@@ -35,7 +35,7 @@ typedef struct _mapnik_bbox_t mapnik_bbox_t;
 
 MAPNIKCAPICALL mapnik_bbox_t * mapnik_bbox(double minx, double miny, double maxx, double maxy);
 
-void mapnik_bbox_free(mapnik_bbox_t * b);
+MAPNIKCAPICALL void mapnik_bbox_free(mapnik_bbox_t * b);
 
 
 // Image
