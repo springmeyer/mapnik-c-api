@@ -5,6 +5,7 @@
 #include <mapnik/agg_renderer.hpp>
 #include <mapnik/load_map.hpp>
 #include <mapnik/datasource_cache.hpp>
+#include <mapnik/font_engine_freetype.hpp>
 
 #include "mapnik_c_api.h"
 
@@ -22,6 +23,16 @@ int mapnik_register_datasources(const char* path) {
 #else
         mapnik::datasource_cache::instance()->register_datasources(path);
 #endif
+        return 0;
+    } catch (std::exception const& ex) {
+        printf("%s\n",ex.what());
+        return -1;
+    }
+}
+
+int mapnik_register_fonts(const char* path) {
+    try {
+        mapnik::freetype_engine::register_fonts(path);
         return 0;
     } catch (std::exception const& ex) {
         printf("%s\n",ex.what());
