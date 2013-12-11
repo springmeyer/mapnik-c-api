@@ -33,7 +33,7 @@ check:
 	./test/c-api-test
 
 clean:
-	rm -rf ./libmapnik_c.dylib*
+	rm -rf ./libmapnik_c.dylib* ./libmapnik_c.so*
 	rm -rf ./test/c-api-test
 	rm -f ./py-api/*pyc
 

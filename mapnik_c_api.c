@@ -5,9 +5,11 @@
 #include <mapnik/agg_renderer.hpp>
 #include <mapnik/load_map.hpp>
 #include <mapnik/datasource_cache.hpp>
+#include <mapnik/font_engine_freetype.hpp>
 
 #include "mapnik_c_api.h"
 
+#include <stdlib.h>
 
 #ifdef __cplusplus
 extern "C"
@@ -28,6 +30,16 @@ int mapnik_register_datasources(const char* path) {
     }
 }
 
+int mapnik_register_fonts(const char* path) {
+    try {
+        mapnik::freetype_engine::register_fonts(path);
+        return 0;
+    } catch (std::exception const& ex) {
+        printf("%s\n",ex.what());
+        return -1;
+    }
+}
+
 struct _mapnik_map_t {
     mapnik::Map * m;
 };
@@ -39,8 +51,10 @@ mapnik_map_t * mapnik_map(unsigned width, unsigned height) {
 }
 
 void mapnik_map_free(mapnik_map_t * m) {
-    if (m->m) delete m->m;
-    if (m) delete m;
+    if (m)  {
+        if (m->m) delete m->m;
+        delete m;
+    }
 }
 
 const char * mapnik_map_get_srs(mapnik_map_t * m) {
@@ -97,6 +111,114 @@ int mapnik_map_render_to_file(mapnik_map_t * m, const char* filepath) {
     }
     return -1;
 }
+
+
+void mapnik_map_resize(mapnik_map_t *m, unsigned int width, unsigned int height) {
+    if (m&& m->m) {
+        m->m->resize(width, height);
+    }
+}
+
+
+struct _mapnik_projection_t {
+    mapnik::projection * p;
+};
+
+mapnik_projection_t * mapnik_map_projection(mapnik_map_t *m) {
+    mapnik_projection_t * proj = new mapnik_projection_t;
+    if (m && m->m)
+        proj->p = new mapnik::projection(m->m->srs());
+    else
+        proj->p = NULL;
+    return proj;
+}
+
+
+void mapnik_projection_free(mapnik_projection_t *p) {
+    if (p) {
+        if (p->p) delete p->p;
+        delete p;
+    }
+}
+
+
+mapnik_coord_t mapnik_projection_forward(mapnik_projection_t *p, mapnik_coord_t c) {
+    if (p && p->p) {
+        p->p->forward(c.x, c.y);
+    }
+    return c;
+}
+
+struct _mapnik_bbox_t {
+    mapnik::box2d<double> b;
+};
+
+mapnik_bbox_t * mapnik_bbox(double minx, double miny, double maxx, double maxy) {
+    mapnik_bbox_t * b = new mapnik_bbox_t;
+    b->b = mapnik::box2d<double>(minx, miny, maxx, maxy);
+    return b;
+}
+
+void mapnik_bbox_free(mapnik_bbox_t * b) {
+    if (b)
+        delete b;
+}
+
+void mapnik_map_zoom_to_box(mapnik_map_t * m, mapnik_bbox_t * b) {
+    if (m && m->m && b) {
+        m->m->zoom_to_box(b->b);
+    }
+}
+
+struct _mapnik_image_t {
+    mapnik::image_32 *i;
+};
+
+void mapnik_image_free(mapnik_image_t * i) {
+    if (i) {
+        if (i->i) delete i->i;
+        delete i;
+    }
+}
+
+mapnik_image_t * mapnik_map_render_to_image(mapnik_map_t * m) {
+    mapnik::image_32 * im = new mapnik::image_32(m->m->width(), m->m->height());
+    if (m && m->m) {
+        try {
+            mapnik::agg_renderer<mapnik::image_32> ren(*m->m,*im);
+            ren.apply();
+        } catch (std::exception const& ex) {
+            delete im;
+            printf("%s\n",ex.what());
+            return NULL;
+        }
+    }
+    mapnik_image_t * i = new mapnik_image_t;
+    i->i = im;
+    return i;
+}
+
+void mapnik_image_blob_free(mapnik_image_blob_t * b) {
+    if (b) {
+        if (b->ptr)
+            delete[] b->ptr;
+        delete b;
+    }
+}
+
+mapnik_image_blob_t * mapnik_image_to_png_blob(mapnik_image_t * i) {
+    mapnik_image_blob_t * blob = new mapnik_image_blob_t;
+    blob->ptr = NULL;
+    blob->len = 0;
+    if (i && i->i) {
+        std::string s = save_to_string(*(i->i), "png256");
+        blob->len = s.length();
+        blob->ptr = new char[blob->len];
+        memcpy(blob->ptr, s.c_str(), blob->len);
+    }
+    return blob;
+}
+
 
 #ifdef __cplusplus
 }
