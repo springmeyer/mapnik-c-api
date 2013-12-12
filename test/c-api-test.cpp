@@ -4,6 +4,7 @@
 #include <assert.h>
 
 #include "mapnik_c_api.h"
+#include <fstream>
 
 // https://github.com/philsquared/Catch/wiki/Supplying-your-own-main()
 #define CATCH_CONFIG_MAIN
@@ -38,5 +39,23 @@ TEST_CASE( "map/render", "should render png" ) {
       mapnik_map_zoom_all(map);
       mapnik_map_render_to_file(map,"/tmp/mapnik-c-api-test-map1.png");
       printf("\x1b[1;32m ✓ (%s)\x1b[0m\n", "rendered to /tmp/mapnik-c-api-test-map1.png");
+      mapnik_map_free(map);
+}
+
+TEST_CASE( "map/render_to_mem", "should render png in memory" ) {
+      mapnik_map_t * map;
+      map = mapnik_map(1024,1024);
+      mapnik_register_datasources(plugin_path);
+      REQUIRE_FALSE(mapnik_map_load(map,"sample/stylesheet.xml"));
+      mapnik_map_zoom_to_box(map, mapnik_bbox(0, 0, 5000000, 5000000));
+      mapnik_image_t * i = mapnik_map_render_to_image(map);
+      mapnik_image_blob_t * b = mapnik_image_to_png_blob(i);
+
+      std::ofstream o("/tmp/mapnik-c-api-test-map2.png", std::ios_base::out | std::ios_base::binary);
+      o.write(b->ptr, b->len);
+      o.close();
+
+      mapnik_image_blob_free(b);
+      mapnik_image_free(i);
       mapnik_map_free(map);
 }
