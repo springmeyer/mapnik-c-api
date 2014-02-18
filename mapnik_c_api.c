@@ -42,19 +42,26 @@ int mapnik_register_fonts(const char* path) {
 
 struct _mapnik_map_t {
     mapnik::Map * m;
+    std::string * err;
 };
 
 mapnik_map_t * mapnik_map(unsigned width, unsigned height) {
     mapnik_map_t * map = new mapnik_map_t;
     map->m = new mapnik::Map(width,height);
+    map->err = NULL;
     return map;
 }
 
 void mapnik_map_free(mapnik_map_t * m) {
     if (m)  {
         if (m->m) delete m->m;
+        if (m->err) delete m->err;
         delete m;
     }
+}
+
+inline void mapnik_map_reset_last_error(mapnik_map_t *m) {
+    if (m && m->err) { delete m->err; m->err = NULL; }
 }
 
 const char * mapnik_map_get_srs(mapnik_map_t * m) {
@@ -71,11 +78,12 @@ int mapnik_map_set_srs(mapnik_map_t * m, const char* srs) {
 }
 
 int mapnik_map_load(mapnik_map_t * m, const char* stylesheet) {
+    mapnik_map_reset_last_error(m);
     if (m && m->m) {
         try {
             mapnik::load_map(*m->m,stylesheet);
         } catch (std::exception const& ex) {
-            printf("%s\n",ex.what());
+            m->err = new std::string(ex.what());
             return -1;
         }
         return 0;
@@ -84,11 +92,12 @@ int mapnik_map_load(mapnik_map_t * m, const char* stylesheet) {
 }
 
 int mapnik_map_zoom_all(mapnik_map_t * m) {
+    mapnik_map_reset_last_error(m);
     if (m && m->m) {
         try {
             m->m->zoom_all();
         } catch (std::exception const& ex) {
-            printf("%s\n",ex.what());
+            m->err = new std::string(ex.what());
             return -1;
         }
         return 0;
@@ -97,6 +106,7 @@ int mapnik_map_zoom_all(mapnik_map_t * m) {
 }
 
 int mapnik_map_render_to_file(mapnik_map_t * m, const char* filepath) {
+    mapnik_map_reset_last_error(m);
     if (m && m->m) {
         try {
             mapnik::image_32 buf(m->m->width(),m->m->height());
@@ -104,7 +114,7 @@ int mapnik_map_render_to_file(mapnik_map_t * m, const char* filepath) {
             ren.apply();
             mapnik::save_to_file(buf,filepath);
         } catch (std::exception const& ex) {
-            printf("%s\n",ex.what());
+            m->err = new std::string(ex.what());
             return -1;
         }
         return 0;
@@ -124,6 +134,12 @@ MAPNIKCAPICALL void mapnik_map_set_buffer_size(mapnik_map_t * m, int buffer_size
 	m->m->set_buffer_size(buffer_size);
 }
 
+const char *mapnik_map_last_error(mapnik_map_t *m) {
+    if (m && m->err) {
+        return m->err->c_str();
+    }
+    return NULL;
+}
 
 struct _mapnik_projection_t {
     mapnik::projection * p;
@@ -187,6 +203,7 @@ void mapnik_image_free(mapnik_image_t * i) {
 }
 
 mapnik_image_t * mapnik_map_render_to_image(mapnik_map_t * m) {
+    mapnik_map_reset_last_error(m);
     mapnik::image_32 * im = new mapnik::image_32(m->m->width(), m->m->height());
     if (m && m->m) {
         try {
@@ -194,7 +211,7 @@ mapnik_image_t * mapnik_map_render_to_image(mapnik_map_t * m) {
             ren.apply();
         } catch (std::exception const& ex) {
             delete im;
-            printf("%s\n",ex.what());
+            m->err = new std::string(ex.what());
             return NULL;
         }
     }

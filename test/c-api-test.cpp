@@ -59,3 +59,36 @@ TEST_CASE( "map/render_to_mem", "should render png in memory" ) {
       mapnik_image_free(i);
       mapnik_map_free(map);
 }
+
+TEST_CASE( "map/last_error", "should return errors" ) {
+      mapnik_map_t * map;
+      map = mapnik_map(1024,1024);
+      const char * error;
+      error = mapnik_map_last_error(map);
+      REQUIRE( NULL==error );
+
+      REQUIRE( -1==mapnik_map_load(map,"sample/doesnotexist.xml") );
+      error = mapnik_map_last_error(map);
+      REQUIRE( NULL!=strstr(error, "does not exist") );
+      REQUIRE( NULL!=strstr(error, "sample/doesnotexist.xml") );
+
+      REQUIRE_FALSE(mapnik_map_load(map,"sample/missing_attribute.xml"));
+      // successful load resets last_error
+      error = mapnik_map_last_error(map);
+      REQUIRE( NULL==error );
+
+      mapnik_map_zoom_to_box(map, mapnik_bbox(0, 0, 5000000, 5000000));
+
+      // render to image should fail for missing attribute in style
+      mapnik_image_t * i = mapnik_map_render_to_image(map);
+      REQUIRE( NULL==i );
+      error = mapnik_map_last_error(map);
+      REQUIRE( NULL!=strstr(error, "no attribute 'doesnotexist' in") );
+
+      // render to file should fail for missing attribute in style
+      REQUIRE( -1==mapnik_map_render_to_file(map, "/tmp/mapnik-c-api-test-map3.png") );
+      error = mapnik_map_last_error(map);
+      REQUIRE( NULL!=strstr(error, "no attribute 'doesnotexist' in") );
+
+      mapnik_map_free(map);
+}

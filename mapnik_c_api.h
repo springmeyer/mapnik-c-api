@@ -61,6 +61,8 @@ MAPNIKCAPICALL mapnik_map_t * mapnik_map( unsigned int width, unsigned int heigh
 
 MAPNIKCAPICALL void mapnik_map_free(mapnik_map_t * m);
 
+MAPNIKCAPICALL const char * mapnik_map_last_error(mapnik_map_t * m);
+
 MAPNIKCAPICALL const char * mapnik_map_get_srs(mapnik_map_t * m);
 
 MAPNIKCAPICALL int mapnik_map_set_srs(mapnik_map_t * m, const char* srs);
