@@ -26,7 +26,7 @@ TEST_CASE( "map/srs", "should get/set srs string" ) {
 TEST_CASE( "map/load", "should load xml" ) {
       mapnik_map_t * map;
       map = mapnik_map(256,256);
-      mapnik_register_datasources(MAPNIK_PLUGINDIR);
+      mapnik_register_datasources(MAPNIK_PLUGINDIR, NULL);
       REQUIRE_FALSE(mapnik_map_load(map,"sample/stylesheet.xml"));
       mapnik_map_free(map);
 }
@@ -34,7 +34,7 @@ TEST_CASE( "map/load", "should load xml" ) {
 TEST_CASE( "map/render", "should render png" ) {
       mapnik_map_t * map;
       map = mapnik_map(256,256);
-      mapnik_register_datasources(MAPNIK_PLUGINDIR);
+      mapnik_register_datasources(MAPNIK_PLUGINDIR, NULL);
       REQUIRE_FALSE(mapnik_map_load(map,"sample/stylesheet.xml"));
       mapnik_map_zoom_all(map);
       mapnik_map_render_to_file(map,"/tmp/mapnik-c-api-test-map1.png");
@@ -45,7 +45,7 @@ TEST_CASE( "map/render", "should render png" ) {
 TEST_CASE( "map/render_to_mem", "should render png in memory" ) {
       mapnik_map_t * map;
       map = mapnik_map(1024,1024);
-      mapnik_register_datasources(MAPNIK_PLUGINDIR);
+      mapnik_register_datasources(MAPNIK_PLUGINDIR, NULL);
       REQUIRE_FALSE(mapnik_map_load(map,"sample/stylesheet.xml"));
       mapnik_map_zoom_to_box(map, mapnik_bbox(0, 0, 5000000, 5000000));
       mapnik_image_t * i = mapnik_map_render_to_image(map);
