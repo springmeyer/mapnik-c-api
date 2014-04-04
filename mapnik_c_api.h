@@ -12,8 +12,8 @@ extern "C"
 {
 #endif
 
-MAPNIKCAPICALL int mapnik_register_datasources(const char* path);
-MAPNIKCAPICALL int mapnik_register_fonts(const char* path);
+MAPNIKCAPICALL int mapnik_register_datasources(const char* path, char** err);
+MAPNIKCAPICALL int mapnik_register_fonts(const char* path, char** err);
 
 
 // Coord
