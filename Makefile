@@ -1,7 +1,7 @@
 # inherit from env
 CXX := $(CXX)
 CXXFLAGS := $(CXXFLAGS)
-LDFLAGS := $(LDFLAGS) -lboost_system
+LDFLAGS := $(LDFLAGS)
 
 # mapnik settings
 MAPNIK_CXXFLAGS := $(shell mapnik-config --cflags)
