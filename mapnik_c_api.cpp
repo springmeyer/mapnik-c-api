@@ -270,7 +270,12 @@ mapnik_image_blob_t * mapnik_image_to_png_blob(mapnik_image_t * i) {
 }
 
 const char * mapnik_version_string() {
+#if MAPNIK_VERSION >= 200100
 	return MAPNIK_VERSION_STRING;
+#else
+#define MAPNIK_C_API_STRINGIFY(n) #n
+	return "ABI " MAPNIK_C_API_STRINGIFY(MAPNIK_VERSION);
+#endif
 }
 
 
