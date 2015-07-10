@@ -31,6 +31,15 @@ TEST_CASE( "map/load", "should load xml" ) {
       mapnik_map_free(map);
 }
 
+TEST_CASE( "map/load_string", "should load a string" ) {
+
+	const char* minimal_map_string = "<?xml version=\"1.0\" encoding=\"utf-8\"?><Map />";
+	mapnik_map_t * map;
+	map = mapnik_map(256,256);
+	mapnik_register_datasources(MAPNIK_PLUGINDIR, NULL);
+	REQUIRE_FALSE(mapnik_map_load_string(map, minimal_map_string));
+}
+
 TEST_CASE( "map/render", "should render png" ) {
       mapnik_map_t * map;
       map = mapnik_map(256,256);

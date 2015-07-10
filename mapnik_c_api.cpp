@@ -105,6 +105,20 @@ int mapnik_map_load(mapnik_map_t * m, const char* stylesheet) {
     return -1;
 }
 
+int mapnik_map_load_string(mapnik_map_t * m, const char* stylesheet_string) {
+	mapnik_map_reset_last_error(m);
+	if (m && m->m) {
+		try {
+			mapnik::load_map_string(*m->m, stylesheet_string);
+        } catch (std::exception const& ex) {
+            m->err = new std::string(ex.what());
+            return -1;
+        }
+        return 0;
+    }
+    return -1;
+}
+
 int mapnik_map_zoom_all(mapnik_map_t * m) {
     mapnik_map_reset_last_error(m);
     if (m && m->m) {
