@@ -39,7 +39,7 @@ MAPNIKCAPICALL void mapnik_bbox_free(mapnik_bbox_t * b);
 
 
 // Image
-MAPNIKCAPICALL typedef struct _mapnik_image_t mapnik_image_t;
+typedef struct _mapnik_image_t mapnik_image_t;
 
 MAPNIKCAPICALL void mapnik_image_free(mapnik_image_t * i);
 
