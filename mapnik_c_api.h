@@ -4,7 +4,7 @@
 #if defined(WIN32) || defined(WINDOWS) || defined(_WIN32) || defined(_WINDOWS)
 #  define MAPNIKCAPICALL __declspec(dllexport)
 #else
-#  define MAPNIKCAPICALL
+#  define MAPNIKCAPICALL __attribute__ ((visibility ("default")))
 #endif
 
 #ifdef __cplusplus

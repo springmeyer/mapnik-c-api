@@ -2,6 +2,7 @@
 *dylib
 *.a
 test/c-api-test
+test/c-api-c99-test
 .DS_Store
 *.dSYM
 *.png

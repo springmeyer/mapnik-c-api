@@ -1,11 +1,21 @@
 #include <mapnik/version.hpp>
-#include <mapnik/graphics.hpp>
+#include <mapnik/map.hpp>
 #include <mapnik/color.hpp>
 #include <mapnik/image_util.hpp>
 #include <mapnik/agg_renderer.hpp>
 #include <mapnik/load_map.hpp>
 #include <mapnik/datasource_cache.hpp>
+#include <mapnik/projection.hpp>
 #include <mapnik/font_engine_freetype.hpp>
+
+#if MAPNIK_VERSION >= 300000
+#include <mapnik/image.hpp>
+#define mapnik_image_type mapnik::image_rgba8
+#else
+#include <mapnik/graphics.hpp>
+#define mapnik_image_type mapnik::image_32
+#endif
+
 
 #include "mapnik_c_api.h"
 
@@ -113,8 +123,8 @@ int mapnik_map_render_to_file(mapnik_map_t * m, const char* filepath) {
     mapnik_map_reset_last_error(m);
     if (m && m->m) {
         try {
-            mapnik::image_32 buf(m->m->width(),m->m->height());
-            mapnik::agg_renderer<mapnik::image_32> ren(*m->m,buf);
+            mapnik_image_type buf(m->m->width(),m->m->height());
+            mapnik::agg_renderer<mapnik_image_type> ren(*m->m,buf);
             ren.apply();
             mapnik::save_to_file(buf,filepath);
         } catch (std::exception const& ex) {
@@ -196,7 +206,7 @@ void mapnik_map_zoom_to_box(mapnik_map_t * m, mapnik_bbox_t * b) {
 }
 
 struct _mapnik_image_t {
-    mapnik::image_32 *i;
+    mapnik_image_type *i;
 };
 
 void mapnik_image_free(mapnik_image_t * i) {
@@ -208,10 +218,10 @@ void mapnik_image_free(mapnik_image_t * i) {
 
 mapnik_image_t * mapnik_map_render_to_image(mapnik_map_t * m) {
     mapnik_map_reset_last_error(m);
-    mapnik::image_32 * im = new mapnik::image_32(m->m->width(), m->m->height());
+    mapnik_image_type * im = new mapnik_image_type(m->m->width(), m->m->height());
     if (m && m->m) {
         try {
-            mapnik::agg_renderer<mapnik::image_32> ren(*m->m,*im);
+            mapnik::agg_renderer<mapnik_image_type> ren(*m->m,*im);
             ren.apply();
         } catch (std::exception const& ex) {
             delete im;
