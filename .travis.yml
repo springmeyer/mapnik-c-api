@@ -1,19 +1,13 @@
-language: cpp
-
-compiler:
- - clang
- - gcc
+language: objective-c
 
 before_install:
- - sudo apt-get update -y
+ - brew install mapnik
 
 install:
- - sudo apt-get -y install build-essential make
+ - brew list mapnik
 
 before_script:
- - sudo apt-get -y install libmapnik2-2.0 libmapnik-dev mapnik-utils
+ - make
 
 script:
- # workaround https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=63403 and https://bugs.launchpad.net/ubuntu/+source/cairomm/+bug/452733
- - export CXXFLAGS="-I/usr/lib/x86_64-linux-gnu/sigc++-2.0/include/"
  - make test
