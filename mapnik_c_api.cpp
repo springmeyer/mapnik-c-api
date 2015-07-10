@@ -106,10 +106,10 @@ int mapnik_map_load(mapnik_map_t * m, const char* stylesheet) {
 }
 
 int mapnik_map_load_string(mapnik_map_t * m, const char* stylesheet_string) {
-	mapnik_map_reset_last_error(m);
-	if (m && m->m) {
-		try {
-			mapnik::load_map_string(*m->m, stylesheet_string);
+    mapnik_map_reset_last_error(m);
+    if (m && m->m) {
+        try {
+            mapnik::load_map_string(*m->m, stylesheet_string);
         } catch (std::exception const& ex) {
             m->err = new std::string(ex.what());
             return -1;
@@ -159,7 +159,7 @@ void mapnik_map_resize(mapnik_map_t *m, unsigned int width, unsigned int height)
 
 
 MAPNIKCAPICALL void mapnik_map_set_buffer_size(mapnik_map_t * m, int buffer_size) {
-	m->m->set_buffer_size(buffer_size);
+    m->m->set_buffer_size(buffer_size);
 }
 
 const char *mapnik_map_last_error(mapnik_map_t *m) {
@@ -271,10 +271,10 @@ mapnik_image_blob_t * mapnik_image_to_png_blob(mapnik_image_t * i) {
 
 const char * mapnik_version_string() {
 #if MAPNIK_VERSION >= 200100
-	return MAPNIK_VERSION_STRING;
+    return MAPNIK_VERSION_STRING;
 #else
 #define MAPNIK_C_API_STRINGIFY(n) #n
-	return "ABI " MAPNIK_C_API_STRINGIFY(MAPNIK_VERSION);
+    return "ABI " MAPNIK_C_API_STRINGIFY(MAPNIK_VERSION);
 #endif
 }
 
