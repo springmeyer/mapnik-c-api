@@ -16,4 +16,5 @@ before_script:
 script:
  # workaround https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=63403 and https://bugs.launchpad.net/ubuntu/+source/cairomm/+bug/452733
  - export CXXFLAGS="-I/usr/lib/x86_64-linux-gnu/sigc++-2.0/include/"
- - make test
+ - make test/c-api-test && ./test/c-api-test
+ - make test/c-api-c99-test && ./test/c-api-c99-test
