@@ -269,6 +269,10 @@ mapnik_image_blob_t * mapnik_image_to_png_blob(mapnik_image_t * i) {
     return blob;
 }
 
+const char * mapnik_version_string() {
+	return MAPNIK_VERSION_STRING;
+}
+
 
 #ifdef __cplusplus
 }
