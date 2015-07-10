@@ -14,6 +14,7 @@ extern "C"
 
 MAPNIKCAPICALL int mapnik_register_datasources(const char* path, char** err);
 MAPNIKCAPICALL int mapnik_register_fonts(const char* path, char** err);
+MAPNIKCAPICALL const char * mapnik_version_string();
 
 
 // Coord
@@ -68,6 +69,8 @@ MAPNIKCAPICALL const char * mapnik_map_get_srs(mapnik_map_t * m);
 MAPNIKCAPICALL int mapnik_map_set_srs(mapnik_map_t * m, const char* srs);
 
 MAPNIKCAPICALL int mapnik_map_load(mapnik_map_t * m, const char* stylesheet);
+
+MAPNIKCAPICALL int mapnik_map_load_string(mapnik_map_t * m, const char* stylesheet_string);
 
 MAPNIKCAPICALL int mapnik_map_zoom_all(mapnik_map_t * m);
 
