@@ -1,9 +1,10 @@
 language: objective-c
 
 before_install:
- - brew install mapnik
+ - brew update
 
 install:
+ - brew install mapnik
  - brew list mapnik
 
 before_script:
