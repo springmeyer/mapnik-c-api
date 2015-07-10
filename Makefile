@@ -1,6 +1,8 @@
 # inherit from env
 CXX := $(CXX)
-CXXFLAGS := $(CXXFLAGS)
+CC := $(CC)
+CXXFLAGS := $(CXXFLAGS) -Wall -pedantic
+CFLAGS := $(CFLAGS) -Wall -pedantic -std=c99
 LDFLAGS := $(LDFLAGS)
 
 # mapnik settings
@@ -12,41 +14,37 @@ OS:=$(shell uname -s)
 ifeq ($(OS),Darwin)
 	SHARED_FLAG = -dynamiclib
 	LIBNAME = libmapnik_c.dylib
-	LDFLAGS += -Wl,-install_name,`pwd`/libmapnik_c.dylib -Wl,-undefined -Wl,dynamic_lookup
+	LDFLAGS := -Wl,-install_name,$$(pwd)/$(LIBNAME) -Wl,-undefined -Wl,dynamic_lookup
 else
 	SHARED_FLAG = -shared
 	LIBNAME = libmapnik_c.so
-	LDFLAGS += -Wl,-rpath=. -fPIC
+	LDFLAGS := -Wl,-rpath=. -fPIC
 endif
 
-STATIC_FLAG :=
+all: $(LIBNAME)
 
-all: $(LIBNAME) libmapnik_c.a
-
-$(LIBNAME): mapnik_c_api.c mapnik_c_api.h Makefile
-	$(CXX) -x c++ -o $(LIBNAME) $(SHARED_FLAG) mapnik_c_api.c $(LDFLAGS) $(MAPNIK_CXXFLAGS) $(MAPNIK_LDFLAGS)
-
-libmapnik_c.o: mapnik_c_api.c mapnik_c_api.h Makefile
-	$(CXX) -x c++ -c -o libmapnik_c.o $(STATIC_FLAG) mapnik_c_api.c $(LDFLAGS) $(MAPNIK_CXXFLAGS) $(MAPNIK_LDFLAGS)
-
-%.a: %.o
-	ar rcs $@ $<
+$(LIBNAME): mapnik_c_api.cpp mapnik_c_api.h Makefile
+	$(CXX) -o $(LIBNAME) $(SHARED_FLAG) mapnik_c_api.cpp $(LDFLAGS) $(CXXFLAGS) $(MAPNIK_CXXFLAGS) $(MAPNIK_LDFLAGS)
 
 test/c-api-test-cfg.h:
 	echo "#define MAPNIK_PLUGINDIR \"$(MAPNIK_PLUGINDIR)\"" > test/c-api-test-cfg.h
 
-test/c-api-test: libmapnik_c.a test/c-api-test.cpp test/c-api-test-cfg.h
-	$(CXX) -x c++ -o ./test/c-api-test test/c-api-test.cpp $(LDFLAGS) -L./ -I./ -lmapnik_c
+test/c-api-test: $(LIBNAME) test/c-api-test.cpp test/c-api-test-cfg.h
+	$(CXX) -o ./test/c-api-test test/c-api-test.cpp $(LDFLAGS) $(CXXFLAGS) -L./ -I./ -lmapnik_c
 
-test: test/c-api-test
-	@./test/c-api-test
+test/c-api-c99-test: $(LIBNAME) test/c-api-c99-test.c test/c-api-test-cfg.h
+	$(CC) -o ./test/c-api-c99-test test/c-api-c99-test.c $(LDFLAGS) $(CFLAGS) -L./ -I./ -lmapnik_c
 
-check:
+test: test/c-api-test test/c-api-c99-test
+	./test/c-api-c99-test
 	./test/c-api-test
 
+check:
+	make test
+
 clean:
-	rm -rf ./libmapnik_c.dylib ./libmapnik_c.so ./libmapnik_c.o ./libmapnik_c.a
-	rm -rf ./test/c-api-test test/c-api-test-cfg.h
+	rm -rf ./$(LIBNAME)
+	rm -rf ./test/c-api-test ./test/c-api-c99-test test/c-api-test-cfg.h
 	rm -f ./py-api/*pyc
 
 lint:
