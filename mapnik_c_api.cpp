@@ -9,13 +9,13 @@
 #include <mapnik/font_engine_freetype.hpp>
 
 #if MAPNIK_VERSION >= 300000
-#include <mapnik/image.hpp>
-#define mapnik_image_type mapnik::image_rgba8
+	#include <mapnik/image.hpp>
+	#define mapnik_image_type mapnik::image_rgba8
+    #include <mapnik/image_view_any.hpp>
 #else
-#include <mapnik/graphics.hpp>
-#define mapnik_image_type mapnik::image_32
+	#include <mapnik/graphics.hpp>
+	#define mapnik_image_type mapnik::image_32
 #endif
-
 
 #include "mapnik_c_api.h"
 
@@ -136,7 +136,6 @@ int mapnik_map_render_to_file(mapnik_map_t * m, const char* filepath) {
     return -1;
 }
 
-
 void mapnik_map_resize(mapnik_map_t *m, unsigned int width, unsigned int height) {
     if (m&& m->m) {
         m->m->resize(width, height);
@@ -255,6 +254,23 @@ mapnik_image_blob_t * mapnik_image_to_png_blob(mapnik_image_t * i) {
     return blob;
 }
 
+mapnik_image_blob_t * mapnik_image_view_to_png_blob(mapnik_image_t * i, unsigned int xx, unsigned int yy, unsigned int xsize, unsigned int ysize) {
+    mapnik_image_blob_t * blob = new mapnik_image_blob_t;
+    blob->ptr = NULL;
+    blob->len = 0;
+    if (i && i->i) {
+#if MAPNIK_VERSION >= 300000
+		mapnik::image_view_any vw(mapnik::image_view<mapnik::image<mapnik::rgba8_t>>(xx, yy, xsize, ysize, *(i->i)));
+#else
+        mapnik::image_view<mapnik::image_data_32> vw(xx, yy, xsize, ysize, i->i->data());
+#endif
+        std::string s = save_to_string(vw, "png256");
+        blob->len = s.length();
+        blob->ptr = new char[blob->len];
+        memcpy(blob->ptr, s.c_str(), blob->len);
+    }
+    return blob;
+}
 
 #ifdef __cplusplus
 }

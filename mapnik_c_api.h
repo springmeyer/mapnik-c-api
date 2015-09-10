@@ -52,7 +52,7 @@ MAPNIKCAPICALL void mapnik_image_blob_free(mapnik_image_blob_t * b);
 
 MAPNIKCAPICALL mapnik_image_blob_t * mapnik_image_to_png_blob(mapnik_image_t * i);
 
-
+MAPNIKCAPICALL mapnik_image_blob_t * mapnik_image_view_to_png_blob(mapnik_image_t * i, unsigned int xx, unsigned int yy, unsigned int xlen, unsigned int ylen);
 
 //  Map
 typedef struct _mapnik_map_t mapnik_map_t;
