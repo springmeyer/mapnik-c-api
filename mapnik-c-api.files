@@ -1,0 +1,5 @@
+test/c-api-c99-test.c
+test/c-api-test.cpp
+catch.hpp
+mapnik_c_api.cpp
+mapnik_c_api.h
