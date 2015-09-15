@@ -37,22 +37,28 @@ mapnik_image_blob_t * mapnik_image_view_to_png_blob(mapnik_image_t * i, unsigned
 
 mapnik_image_t * mapnik_map_render_to_image(mapnik_map_t * m);
 
+mapnik_image_blob_t * mapnik_image_to_metatile(mapnik_map_t * m, mapnik_image_t * i, unsigned int z, unsigned int x, unsigned int y, unsigned int ms);
+
 ]]
 
 local m = ffi.load("../libmapnik_c.so")
 
-m.mapnik_register_datasources("/usr/local/lib/mapnik/input")
-
-local map = m.mapnik_map(256*8,256*8)
-m.mapnik_map_load(map,"/etc/mapnik-osm-carto-data/moscow.xml")
-m.mapnik_map_zoom_all(map)
-local image = m.mapnik_map_render_to_image(map)
-local png_blob = m.mapnik_image_view_to_png_blob(image, 256*6, 256*4, 256, 256)
---local png_blob = m.mapnik_image_to_png_blob(image)
-m.mapnik_image_free(image)
-local png_file = io.open("lua-test.png", "w")
-png_file:write(ffi.string(png_blob.ptr, png_blob.len))
-png_file:close()
-m.mapnik_image_blob_free(png_blob)
-
-m.mapnik_map_free(map)
+if m.mapnik_register_datasources("/usr/local/lib/mapnik/input") ~= 0 then
+    print("mapnik_image_to_metatile error:"..ffi.string(m.mapnik_map_last_error(map)))
+else
+    local map = m.mapnik_map(256*8,256*8)
+    m.mapnik_map_load(map,"../sample/stylesheet.xml")
+    m.mapnik_map_zoom_all(map)
+    local image = m.mapnik_map_render_to_image(map)
+    local metatile = m.mapnik_image_to_metatile(map, image, 3, 0, 0, 8)
+    if metatile and metatile.ptr then
+        local metatile_file = io.open("lua-test-metatile.meta", "w")
+        metatile_file:write(ffi.string(metatile.ptr, metatile.len))
+        metatile_file:close()
+        m.mapnik_image_blob_free(metatile)
+    else
+        print("mapnik_image_to_metatile error:"..ffi.string(m.mapnik_map_last_error(map)))
+    end
+    m.mapnik_image_free(image)
+    m.mapnik_map_free(map)
+end
