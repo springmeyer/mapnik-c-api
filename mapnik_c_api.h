@@ -83,6 +83,8 @@ MAPNIKCAPICALL mapnik_projection_t * mapnik_map_projection(mapnik_map_t *m);
 
 MAPNIKCAPICALL mapnik_image_t * mapnik_map_render_to_image(mapnik_map_t * m);
 
+MAPNIKCAPICALL mapnik_image_blob_t * mapnik_image_to_metatile(mapnik_map_t *map, mapnik_image_t * i, unsigned int z, unsigned int x, unsigned int y, unsigned int ms);
+
 #ifdef __cplusplus
 }
 #endif
