@@ -52,7 +52,7 @@ MAPNIKCAPICALL void mapnik_image_blob_free(mapnik_image_blob_t * b);
 
 MAPNIKCAPICALL mapnik_image_blob_t * mapnik_image_to_png_blob(mapnik_image_t * i);
 
-
+MAPNIKCAPICALL mapnik_image_blob_t * mapnik_image_view_to_png_blob(mapnik_image_t * i, unsigned int xx, unsigned int yy, unsigned int xlen, unsigned int ylen);
 
 //  Map
 typedef struct _mapnik_map_t mapnik_map_t;
@@ -82,6 +82,8 @@ MAPNIKCAPICALL void mapnik_map_zoom_to_box(mapnik_map_t * m, mapnik_bbox_t * b);
 MAPNIKCAPICALL mapnik_projection_t * mapnik_map_projection(mapnik_map_t *m);
 
 MAPNIKCAPICALL mapnik_image_t * mapnik_map_render_to_image(mapnik_map_t * m);
+
+MAPNIKCAPICALL mapnik_image_blob_t * mapnik_image_to_metatile(mapnik_map_t *map, mapnik_image_t * i, unsigned int z, unsigned int x, unsigned int y, unsigned int ms);
 
 #ifdef __cplusplus
 }

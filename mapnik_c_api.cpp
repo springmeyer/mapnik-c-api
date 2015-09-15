@@ -9,22 +9,36 @@
 #include <mapnik/font_engine_freetype.hpp>
 
 #if MAPNIK_VERSION >= 300000
-#include <mapnik/image.hpp>
-#define mapnik_image_type mapnik::image_rgba8
+	#include <mapnik/image.hpp>
+	#define mapnik_image_type mapnik::image_rgba8
+    #include <mapnik/image_view_any.hpp>
 #else
-#include <mapnik/graphics.hpp>
-#define mapnik_image_type mapnik::image_32
+	#include <mapnik/graphics.hpp>
+	#define mapnik_image_type mapnik::image_32
 #endif
-
 
 #include "mapnik_c_api.h"
 
 #include <stdlib.h>
 
+#define META_MAGIC "META"
+#define MIN(x,y) ((x)<(y)?(x):(y))
+
 #ifdef __cplusplus
 extern "C"
 {
 #endif
+
+struct entry {
+    unsigned int offset;
+    unsigned int size;
+};
+
+struct meta_layout {
+    char magic[4];
+    unsigned int count; // METATILE ^ 2
+    unsigned int x, y, z; // lowest x,y of this metatile, plus z
+};
 
 int mapnik_register_datasources(const char* path, char** err) {
     try {
@@ -135,7 +149,6 @@ int mapnik_map_render_to_file(mapnik_map_t * m, const char* filepath) {
     }
     return -1;
 }
-
 
 void mapnik_map_resize(mapnik_map_t *m, unsigned int width, unsigned int height) {
     if (m&& m->m) {
@@ -255,6 +268,93 @@ mapnik_image_blob_t * mapnik_image_to_png_blob(mapnik_image_t * i) {
     return blob;
 }
 
+mapnik_image_blob_t * mapnik_image_view_to_png_blob(mapnik_image_t * i, unsigned int xx, unsigned int yy, unsigned int xsize, unsigned int ysize) {
+    mapnik_image_blob_t * blob = new mapnik_image_blob_t;
+    blob->ptr = NULL;
+    blob->len = 0;
+    if (i && i->i) {
+#if MAPNIK_VERSION >= 300000
+		mapnik::image_view_any vw(mapnik::image_view<mapnik::image<mapnik::rgba8_t>>(xx, yy, xsize, ysize, *(i->i)));
+#else
+        mapnik::image_view<mapnik::image_data_32> vw(xx, yy, xsize, ysize, i->i->data());
+#endif
+        std::string s = save_to_string(vw, "png256");
+        blob->len = s.length();
+        blob->ptr = new char[blob->len];
+        memcpy(blob->ptr, s.c_str(), blob->len);
+    }
+    return blob;
+}
+
+int xyz_to_meta_offset(unsigned int x, unsigned int y, unsigned int z) {
+    unsigned char mask = 7;
+    return (x & mask) * 8 + (y & mask);
+}
+
+mapnik_image_blob_t * mapnik_image_to_metatile(mapnik_map_t *map, mapnik_image_t * i, unsigned int z_, unsigned int x_, unsigned int y_, unsigned int ms) {
+    int ox, oy, limit;
+    ssize_t offset;
+    struct meta_layout m;
+    struct entry *offsets = new entry[ms*ms];
+    mapnik_image_blob_t **tile = (mapnik_image_blob_t**)malloc((ms*ms)*sizeof(mapnik_image_blob_t*));
+    mapnik_image_blob_t * blob = new mapnik_image_blob_t;
+    blob->ptr = NULL;
+    blob->len = 0;
+
+    mapnik_map_reset_last_error(map);
+
+    memset(&m, 0, sizeof(m));
+
+    // Create and write header
+    m.count = ms * ms;
+    memcpy(m.magic, META_MAGIC, strlen(META_MAGIC));
+    m.x = x_;
+    m.y = y_;
+    m.z = z_;
+
+    offset = sizeof(meta_layout) + ms*ms*sizeof(entry);
+    limit = ms;
+    memset(offsets, 0, ms*ms*sizeof(entry));
+
+    // Generate offset table
+    for (ox=0; ox < limit; ox++) {
+        for (oy=0; oy < limit; oy++) {
+            int mt = xyz_to_meta_offset(x_ + ox, y_ + oy, z_);
+            offsets[mt].offset = offset;
+            tile[mt] = mapnik_image_view_to_png_blob(i, ox*256, oy*256, 256, 256);
+            if(tile[mt]->ptr == NULL){
+                map->err = new std::string("Cannot get image view from image");
+                return NULL;
+            }
+            offsets[mt].size = tile[mt]->len;
+            printf("offsets[%d].offset=%ld, offsets[%d].size=%u\n", mt, offset, mt, offsets[mt].size);
+            offset += offsets[mt].size;
+        }
+    }
+
+    blob->ptr = new char[offset];
+    if (blob->ptr == 0) {
+        map->err = new std::string("Failed to write metatile. Out of memory");
+        return NULL;
+    }
+    memset(blob->ptr, 0, offset);
+    memcpy(blob->ptr,&m,sizeof(m));
+    memcpy(blob->ptr + sizeof(m), offsets, ms*ms*sizeof(entry));
+
+    // Write tiles
+    for (ox=0; ox < limit; ox++) {
+        for (oy=0; oy < limit; oy++) {
+            int mt = xyz_to_meta_offset(x_ + ox, y_ + oy, z_);
+            memcpy(blob->ptr + offsets[mt].offset, tile[mt]->ptr, tile[mt]->len);
+            mapnik_image_blob_free(tile[mt]);
+        }
+    }
+    delete [] offsets;
+    free(tile);
+    blob->len = offset;
+
+    return blob;
+}
 
 #ifdef __cplusplus
 }
