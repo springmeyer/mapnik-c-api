@@ -1,17 +1,19 @@
 language: cpp
 
+sudo: false
+
 compiler:
  - clang
  - gcc
 
-before_install:
- - sudo apt-get update -y
-
-install:
- - sudo apt-get -y install build-essential make
-
-before_script:
- - sudo apt-get -y install libmapnik2-2.0 libmapnik-dev mapnik-utils
+addons:
+  apt:
+    packages:
+    - build-essential
+    - make
+    - libmapnik2-2.0
+    - libmapnik-dev
+    - mapnik-utils
 
 script:
  # workaround https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=63403 and https://bugs.launchpad.net/ubuntu/+source/cairomm/+bug/452733
