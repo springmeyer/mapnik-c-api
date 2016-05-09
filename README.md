@@ -25,4 +25,5 @@ See the `c-api-test.c` for an example.
  - [go-mapnik](https://github.com/omniscale/go-mapnik)
  - [mapnik-go](https://github.com/fawick/go-mapnik)
  - [ffi-mapnik](https://github.com/scooterw/ffi-mapnik)
+ - [simple_mapnik](https://github.com/geoconcerns/simple_mapnik)
  - Please provide a pull request to list your app here
