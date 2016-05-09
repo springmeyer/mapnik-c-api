@@ -1,17 +1,20 @@
 language: cpp
-
-compiler:
- - clang
- - gcc
+sudo: true
+matrix:
+  include:
+    - os: linux
+      compiler: clang
+      env: MAPNIK_VERSION="2.3"
+    - os: linux
+      compiler: gcc
+      env: MAPNIK_VERSION="2.3"
 
 before_install:
+ - sudo apt-add-repository --yes ppa:mapnik/nightly-${MAPNIK_VERSION}
  - sudo apt-get update -y
 
 install:
- - sudo apt-get -y install build-essential make
-
-before_script:
- - sudo apt-get -y install libmapnik2-2.0 libmapnik-dev mapnik-utils
+ - sudo apt-get -y install wget build-essential make libmapnik=${MAPNIK_VERSION}* mapnik-utils=${MAPNIK_VERSION}* libmapnik-dev=${MAPNIK_VERSION}* mapnik-input-plugin*=${MAPNIK_VERSION}*
 
 script:
  # workaround https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=63403 and https://bugs.launchpad.net/ubuntu/+source/cairomm/+bug/452733
